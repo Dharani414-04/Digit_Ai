@@ -1,0 +1,43 @@
+
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.datasets import mnist
+import matplotlib.pyplot as plt
+
+# Load the MNIST dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# Preprocess the data: normalize the images
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+# Build a neural network model
+model = models.Sequential([
+    layers.Flatten(input_shape=(28, 28)),  # Flatten the images
+    layers.Dense(128, activation='relu'),  # Dense hidden layer
+    layers.Dropout(0.2),                   # Dropout for regularization
+    layers.Dense(10, activation='softmax') # Output layer with 10 classes
+])
+
+# Compile the model
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Train the model
+model.fit(x_train, y_train, epochs=5)
+
+# Evaluate the model on the test data
+test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
+print(f"Test accuracy: {test_acc}")
+
+# Save the model (optional)
+model.save("mnist_digit_recognition_model.h5")
+
+# Predict some digits from the test set and display them
+predictions = model.predict(x_test[:5])
+
+for i in range(5):
+    plt.imshow(x_test[i], cmap=plt.cm.binary)
+    plt.title(f"Predicted: {predictions[i].argmax()}")
+    plt.show()
